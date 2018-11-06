@@ -7,7 +7,7 @@ def getSHP(img_path,img_name,save_path,result_array):
     img=oi.open_tiff(img_path,img_name)
     H,W=img[1],img[2]
     result_array=result_array.reshape(H,W)
-    dats = cr.create_tiff(nb_channels=1,new_tiff_name=save_path+"outlier_image_"+img_name+".tif",width = W, \
+    dats = cr.create_tiff(nb_channels=1,new_tiff_name="outlier_image_"+img_name+".tif",width = W, \
             height= H,data_array=result_array,datatype=gdal.GDT_UInt16, \
             geotransformation=img[4],projection=img[5])
 

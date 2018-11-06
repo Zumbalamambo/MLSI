@@ -24,15 +24,15 @@ def img_subtract(dirPath,fileName):
 def img_to_csv(dirpath,savepath,file_name):
     img=oi.open_tiff(dirpath,file_name)# the former one end without "\\"
     data=art.tif2vec(img[0])
-    array_to_csv(savepath,file_name,data)
+    array_to_csv(savepath,file_name,data,"_raw_data")
 
 def csv_to_array(file_path,load_name):
-    a=np.loadtxt(file_path+"/"+load_name+".csv",delimiter=',')#TODO: notice the delimiter
+    a=np.loadtxt(file_path+"/"+load_name+".csv",delimiter=';')#TODO: notice the delimiter
     # a=a.astype(np.float)
     # genfromtxt(file_path+"/"+load_name+".csv", delimiter=';')
     return a
 
-def array_to_csv(save_path,save_name,data,extend_name=None):
+def array_to_csv(save_path,save_name,data,extend_name=''):
     np.savetxt( save_path+"/"+save_name+extend_name+".csv",data,fmt="%.8f",delimiter=';')
 
 def int_to_csv(save_path,save_name,data,extend_name=None):
