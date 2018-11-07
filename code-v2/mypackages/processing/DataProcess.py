@@ -2,6 +2,7 @@ from osgeo import gdal,gdal_array
 import numpy as np
 from numpy import genfromtxt
 import os
+import matplotlib.pyplot as plt
 
 from . import create as cr
 from . import open_image as oi 
@@ -48,3 +49,17 @@ def file_name(file_dir,extendtion):
                 names_no_etd.append(os.path.splitext(file)[0])
     return L,names_no_etd
 
+def visualize_class(img_path,img_name,labels_path,labels_name):
+    
+    img=oi.open_tiff(img_path,img_name)
+    H,W=img[1],img[2]
+
+    data_class=np.loadtxt(labels_path+"/"+labels_name+".csv")#,delimiter=';'
+    data_class=data_class.astype(np.int)
+    data_class=data_class.reshape((H,W))
+    # print(H,W,data_class.shape)
+    
+    fig = plt.figure()
+    plt.imshow(data_class)
+    # plt.show()
+    fig.savefig(labels_name+'_class_visualization.png')

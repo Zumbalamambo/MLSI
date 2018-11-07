@@ -12,7 +12,10 @@ def visualize_class(file_path,load_name,isSample=True):
     data_class=data_class.astype(np.int)
     data_class=data_class.reshape((H,W))
     # print(H,W,data_class.shape)
+    
+    fig = plt.figure()
     plt.imshow(data_class)
-    plt.show()
+    # plt.show()
+    fig.savefig(load_name+'_class_visualization.png')
 
 visualize_class("C:\\Users\\DELL\\Projects\\MLS_cluster", "2_CMGOS_class_sample")
