@@ -5,7 +5,9 @@ from mypackages.processing import GeoProcess
 from mypackages import clustering as cl
 from mypackages import clusteringBased as cb
 from mypackages import scoresToResults as sc2r
+from mypackages.processing import open_image as oi
 
+import numpy as np
 import time
 
 def runClusteringBased(img_path,img_name,data_path,data_name,outlier_save_path,\
@@ -37,7 +39,10 @@ def runClusteringBased(img_path,img_name,data_path,data_name,outlier_save_path,\
         exit()
     AlgorithmName+='_'
     
-
+    #save the cluster information
+    saveclass_extend_name='_'+AlgorithmName+"cluster_label"
+    DataProcess.int_to_csv(outlier_save_path,img_name,d_label,saveclass_extend_name)
+    DataProcess.visualize_class(img_path,img_name,outlier_save_path,img_name+saveclass_extend_name)
     t1 = time.time()
 
     print("running "+ outlierPara[0]+" for calculating the outlier scores...")
@@ -46,11 +51,6 @@ def runClusteringBased(img_path,img_name,data_path,data_name,outlier_save_path,\
     
     if o_filter=="highRank":
         outlier_label=sc2r.highRank.getOutliers(d_score,98)
-
-    #save the cluster information
-    saveclass_extend_name='_'+AlgorithmName+"cluster_label"
-    DataProcess.int_to_csv(outlier_save_path,img_name,d_label,saveclass_extend_name)
-    DataProcess.visualize_class(img_path,img_name,outlier_save_path,img_name+saveclass_extend_name)
 
     #save the label information for further usage
     savelabel_extend_name='_'+AlgorithmName+"outlier_label"
@@ -82,11 +82,11 @@ def compareClustering():
 
     #adjust the parameters here
     clusteringParaS=[
-            ["kMeans",[4,5]],#done
+            ["kMeans",[5,5]],#done
             # ["Affinity",[0.5,200,15,True,None,'euclidean',False]], #FIXME: memoryerror, google result: too consuming
-            # ["MeanShift",[None,None,False,1,True,None]],#FIXME:a little slow
+            # ["MeanShift",[None,None,False,1,True,None]],#FIXME:a little slow TODO:
             # ["Spectral",[4,"discretize",0]],#FIXME: memoryerror, google result: too consuming, need to do calculation previously
-            # ["Spectral",[4,"kmeans",0]],    
+            # ["Spectral",[4,"kmeans",0]],    #NOTE: jeremie: slow
             ['BIRCH',[50,4,0.5,True]],#done
             # ["DBSCAN"],#too comsuming
             # ["Agglomerative",[4,'euclidean',None,None,'auto','ward','deprecated']],#FIXME: memoryerror
@@ -102,7 +102,26 @@ def compareClustering():
                 test_sample_path,test_sample_name,test_sample_path
                 ,clusteringPara,outlierPara,'highRank')
 
-compareClustering()
+def runK():
+    norm_img_path="C:\\Users\\DELL\\Projects\\MLS_cluster\\image-v2-timeseries\\Encoded_dataset\\Encoded_models_2018-10-03_1339\\subtracted_norm_from_norm"
+    norm_data_path="C:\\Users\\DELL\\Projects\\MLS_cluster\\image-v2-timeseries\\raw_data\\1339_sub"
+    img="Subtracted_20040514_20050427"
+    raw="Subtracted_20040514_20050427_raw_data"
+
+    clusteringParaS=[
+            ["MeanShift",[None,None,False,1,True,None]]
+            ]
+    outlierPara=['LDCOF',4,0.7,2]
+
+    #run algorithms at the same time
+    for clusteringPara in clusteringParaS:
+        runClusteringBased(norm_img_path,img,
+                norm_data_path,raw,norm_data_path,
+                clusteringPara,outlierPara,'highRank')
+
+
+
+
 
 
 #get the paths and names in the dir
@@ -115,5 +134,14 @@ compareClustering()
 # for name in img_f_names:
     # DataProcess.img_to_csv(norm_subtracted_path,norm_subtracted_save,name)
 
+norm_img_path="C:\\Users\\DELL\\Projects\\MLS_cluster\\image-v2-timeseries\\Encoded_dataset\\Encoded_models_2018-10-03_1339\\subtracted_norm_from_norm"
+norm_data_path="C:\\Users\\DELL\\Projects\\MLS_cluster\\image-v2-timeseries\\raw_data\\1339_sub"
+img="Subtracted_20040514_20050427"
+raw="Subtracted_20040514_20050427_raw_data"
+test_sample_path="C:\\Users\\DELL\\Projects\\MLS_cluster\\image-v2-timeseries\\Encoded_Sample"
+test_sample_img="Sample_Subtracted_20040514_20050427"
+test_sample_name="Sample_Subtracted_20040514_20050427_raw_data"
 
-
+#show the scatter plot of the images
+# org_data=DataProcess.csv_to_array(norm_data_path,raw)
+# DataProcess.showScatterPlot(org_data)

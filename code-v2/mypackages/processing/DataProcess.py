@@ -8,6 +8,11 @@ from . import create as cr
 from . import open_image as oi 
 from . import array_trs as art
 
+import seaborn as sns
+import pandas as pd 
+from pandas.plotting import scatter_matrix
+
+
 #dirPath="C:\\Users\\DELL\\Projects\\MLS_cluster"
 #fileName="Encoded_20040514"
 def img_subtract(dirPath,fileName):
@@ -63,3 +68,23 @@ def visualize_class(img_path,img_name,labels_path,labels_name):
     plt.imshow(data_class)
     # plt.show()
     fig.savefig(labels_name+'_class_visualization.png')
+
+
+def showScatterPlot(npdata):
+    print(npdata.shape)
+    df= pd.DataFrame({'Band 1':npdata[:,0],'Band 2':npdata[:,1],
+            'Band 3':npdata[:,2]})
+    # sns.set(style="ticks")
+    # sns.pairplot(df, hue="Bands")
+    scatter_matrix(df, alpha = 0.2, diagonal = 'kde')
+    plt.show() 
+    
+def selectArea(selectMask,n_band,value,isStack=True):
+    a=selectMask.reshape(-1,1)
+    s=a
+    if isStack:
+        #manual stack and reshape...
+        for i in range(n_band-1):
+            s=np.hstack((s,a))
+    y=np.where(s==value)
+    return y
