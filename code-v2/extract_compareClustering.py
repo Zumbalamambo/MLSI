@@ -32,9 +32,11 @@ def selectRun():
 
     changeArea=org_data[changePos].reshape(-1,n_bands)
     # change_label=cl.kMeans.getCluster(changeArea,3,5) # n_cluster=3
-    change_label=cl.MeanShift.getCluster(changeArea,None,None,False,1,True,None)
+    # change_label=cl.MeanShift.getCluster(changeArea,None,None,False,1,True,None)
+    # change_label=cl.BIRCH.getCluster(changeArea,threshold=0.6, branching_factor=50, n_clusters=4, compute_labels=True, copy=True)
+    change_label=cl.DBSCAN.getCluster(changeArea)#default result
     result[ns_changePos]=change_label
-    result[ns_nonChangePos]=change_label.max+1
+    result[ns_nonChangePos]=np.max(change_label)+1
 
 
     DataProcess.int_to_csv(select_path,select_img,result,"_meanshift_mark_change_area_class")

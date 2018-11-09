@@ -3,11 +3,9 @@
 from sklearn.cluster import Birch
 import numpy as np
 
-def getCluster(org_data,branching_factor =50,n_clusters=4,threshold=0.5,compute_labels=True):
+def getCluster(org_data,threshold=0.5, branching_factor=50, n_clusters=3, compute_labels=True,copy=True):
 	
-	brc = Birch(branching_factor=branching_factor,
-			n_clusters=n_clusters, threshold=threshold,
-			compute_labels=compute_labels)
+	brc = Birch(threshold, branching_factor, n_clusters, compute_labels, copy)
 	org_data=np.array(org_data)
 	# print(org_data)
 	brc.fit(org_data)
