@@ -124,15 +124,7 @@ def runK():
 
 
 
-#get the paths and names in the dir
-# img_path_name,img_f_names = DataProcess.file_name(norm_subtracted_path,".TIF")
-# data_path_name,data_f_names = DataProcess.file_name(norm_subtracted_save,".csv")
 
-# DataProcess.img_to_csv(test_sample_path,test_sample_path,test_sample_img)
-
-#transform all the images in the path into csv (done)
-# for name in img_f_names:
-    # DataProcess.img_to_csv(norm_subtracted_path,norm_subtracted_save,name)
 
 norm_img_path="C:\\Users\\DELL\\Projects\\MLS_cluster\\image-v2-timeseries\\Encoded_dataset\\Encoded_models_2018-10-03_1339\\subtracted_norm_from_norm"
 norm_data_path="C:\\Users\\DELL\\Projects\\MLS_cluster\\image-v2-timeseries\\raw_data\\1339_sub"

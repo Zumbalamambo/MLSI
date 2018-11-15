@@ -2,12 +2,14 @@ from osgeo import gdal,gdal_array
 import numpy as np
 from numpy import genfromtxt
 import os
-import matplotlib.pyplot as plt
 
 from . import create as cr
 from . import open_image as oi 
 from . import array_trs as art
 
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+from sklearn.preprocessing import MinMaxScaler
 import seaborn as sns
 import pandas as pd 
 from pandas.plotting import scatter_matrix
@@ -54,6 +56,12 @@ def file_name(file_dir,extendtion):
                 names_no_etd.append(os.path.splitext(file)[0])
     return L,names_no_etd
 
+# NOTE: transform a numpy array
+def scaleNormalize(npdata,r=(0,1)):
+    scaler = MinMaxScaler(feature_range=r)
+    X_minmax = scaler.fit_transform(npdata.reshape(-1,1))
+    return X_minmax
+
 def visualize_class(img_path,img_name,labels_path,labels_name):
     
     img=oi.open_tiff(img_path,img_name)
@@ -69,7 +77,7 @@ def visualize_class(img_path,img_name,labels_path,labels_name):
     # plt.show()
     fig.savefig(labels_name+'_class_visualization.png')
 
-
+# visualize multi-dimension numpy array
 def showScatterPlot(npdata):
     print(npdata.shape)
     df= pd.DataFrame({'Band 1':npdata[:,0],'Band 2':npdata[:,1],
@@ -78,7 +86,16 @@ def showScatterPlot(npdata):
     # sns.pairplot(df, hue="Bands")
     scatter_matrix(df, alpha = 0.2, diagonal = 'kde')
     plt.show() 
-    
+
+#save heat map of a 2-D numpy array
+def saveHeatMap(npdata,save_name):
+    # npdata=scaleNormalize(npdata,(0,1000))
+    fig = plt.figure()
+    plt.imshow(npdata,cmap=cm.hot)
+    plt.colorbar()
+    fig.savefig(save_name+'.png',dpi=300)
+
+#used to select the masked area
 def selectArea(selectMask,n_band,value,isStack=True):
     a=selectMask.reshape(-1,1)
     s=a

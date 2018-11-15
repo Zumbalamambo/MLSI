@@ -21,8 +21,6 @@ def selectRun():
     select_img="SOMOCLU_20_20_HDBSCAN_cl_2_2004_2005_min_cluster_size_4_alg_best_"
     simg=oi.open_tiff(select_path,select_img)
     select=simg[0]
-    H=simg[1]
-    W=simg[2]
     
     changePos=DataProcess.selectArea(select,n_bands,-1,isStack=True)
     ns_changePos=DataProcess.selectArea(select,n_bands,-1,isStack=False)
