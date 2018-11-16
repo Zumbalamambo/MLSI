@@ -82,7 +82,7 @@ def compareClustering():
 
     #adjust the parameters here
     clusteringParaS=[
-            ["kMeans",[5,5]],#done
+            # ["kMeans",[5,5]],#done 
             # ["Affinity",[0.5,200,15,True,None,'euclidean',False]], #FIXME: memoryerror, google result: too consuming
             # ["MeanShift",[None,None,False,1,True,None]],#FIXME:a little slow TODO:
             # ["Spectral",[4,"discretize",0]],#FIXME: memoryerror, google result: too consuming, need to do calculation previously

@@ -62,20 +62,12 @@ def scaleNormalize(npdata,r=(0,1)):
     X_minmax = scaler.fit_transform(npdata.reshape(-1,1))
     return X_minmax
 
-def visualize_class(img_path,img_name,labels_path,labels_name):
-    
-    img=oi.open_tiff(img_path,img_name)
-    H,W=img[1],img[2]
-
-    data_class=np.loadtxt(labels_path+"/"+labels_name+".csv")#,delimiter=';'
-    data_class=data_class.astype(np.int)
-    data_class=data_class.reshape((H,W))
-    # print(H,W,data_class.shape)
-    
+#used to save clustered data
+def visualize_class(npdata,save_name):
     fig = plt.figure()
-    plt.imshow(data_class)
+    plt.imshow(npdata)
     # plt.show()
-    fig.savefig(labels_name+'_class_visualization.png')
+    fig.savefig(save_name+'_class_visualization.png')
 
 # visualize multi-dimension numpy array
 def showScatterPlot(npdata):
