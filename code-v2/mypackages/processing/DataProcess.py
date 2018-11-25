@@ -56,7 +56,9 @@ def file_name(file_dir,extendtion):
                 names_no_etd.append(os.path.splitext(file)[0])
     return L,names_no_etd
 
-# NOTE: transform a numpy array
+
+
+# NOTE: transform a numpy array to defined scale
 def scaleNormalize(npdata,r=(0,1)):
     scaler = MinMaxScaler(feature_range=r)
     X_minmax = scaler.fit_transform(npdata.reshape(-1,1))
@@ -67,7 +69,7 @@ def visualize_class(npdata,save_name):
     fig = plt.figure()
     plt.imshow(npdata)
     # plt.show()
-    fig.savefig(save_name+'_class_visualization.png')
+    fig.savefig(save_name+'_class_visualization.png',dpi=300)
 
 # visualize multi-dimension numpy array
 def showScatterPlot(npdata):
@@ -97,3 +99,4 @@ def selectArea(selectMask,n_band,value,isStack=True):
             s=np.hstack((s,a))
     y=np.where(s==value)
     return y
+

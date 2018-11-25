@@ -11,6 +11,7 @@ from sklearn.cluster import DBSCAN
 from sklearn.cluster import KMeans
 from sklearn.cluster import MeanShift
 from sklearn.cluster import SpectralClustering
+from sklearn.metrics import silhouette_score
 
 import numpy as np
 import time
@@ -39,8 +40,9 @@ def extract_compareClustering(clusterClass):
     X_train=org_data[changePos].reshape(-1,n_bands)
     
     result=np.zeros_like(select.reshape(-1,1))
-   
+    
     for cls_name,cls_class in clusterClass.items():
+        print("running",cls_name,"...")
         t0=time.clock()
         cls_class.fit(X_train)
         usingTime=time.clock()-t0
@@ -49,54 +51,58 @@ def extract_compareClustering(clusterClass):
         result[ns_changePos]=cls_class.labels_
         result[ns_nonChangePos]=np.max(cls_class.labels_)+1
 
+        evaluation=silhouette_score(X=org_data,
+            labels=result,metric='euclidean',sample_size=10000)
+
         save_path="C:\\Users\\DELL\\Projects\\MLS_cluster\\image-v2-timeseries\\sklearn_clustering\\compare"
-        DataProcess.visualize_class(result.reshap(H,W),save_path+'\\'+"_meanshift_mark_change_area_class")
+        DataProcess.visualize_class(result.reshape(H,W),save_path+'\\'+cls_name+"_change_area_class")
         
         # save using time
         print("save the information to txt file...")
         with open(save_path+'/'+"Outlier Detection Algorithms Running Time.txt", 'a') as f:
-            f.write("detetion algorithm: "+clf_name+
+            f.write("detetion algorithm: "+cls_name+
+                    "\nsilhouette_score:"+str(evaluation)+
                     "\ndetection using time: "+ str(usingTime))
             f.write("\n----------------------------------------------\n")
     
 if __name__ == "__main__":
 
+    n_clusters=3
     clusterClass={
-        "Affinity":
-            AffinityPropagation(damping=.5,
-                max_iter=200, convergence_iter=15, 
-                copy=True, preference=None, 
-                affinity='euclidean', verbose=False),
-        "Agglomerative":
-            AgglomerativeClustering(n_clusters=2,
-                affinity='euclidean', memory=None, 
-                connectivity=None, compute_full_tree='auto', 
-                linkage='ward', pooling_func='deprecated'),
+        # "Affinity": #NOTE: memory error confirmed
+        #     AffinityPropagation(damping=.5,
+        #         max_iter=200, convergence_iter=15, 
+        #         copy=True, preference=None, 
+        #         affinity='euclidean', verbose=False),
+        # "Agglomerative": #NOTE: memory error confirmed
+        #     AgglomerativeClustering(n_clusters=n_clusters,
+        #         affinity='euclidean', memory=None, 
+        #         connectivity=None, compute_full_tree='auto', 
+        #         linkage='ward', pooling_func='deprecated'),
         "Birch":
             Birch(threshold=0.5, branching_factor=50,  
-                n_clusters=3, compute_labels=True,copy=True),
-        "DBSCAN":
-            DBSCAN(eps=0.5, min_samples=5, 
-                metric='euclidean', metric_params=None,
-                algorithm='auto', leaf_size=30, p=None, n_jobs=1),
+                n_clusters=n_clusters, compute_labels=True,copy=True),
+        # "DBSCAN":#NOTE:looks like memory error occur on this
+        #     DBSCAN(eps=0.5, min_samples=5, 
+        #         metric='euclidean', metric_params=None,
+        #         algorithm='auto', leaf_size=30, p=None, n_jobs=1),
         "kMeans":
-            KMeans(n_clusters=8, init='k-means++', 
+            KMeans(n_clusters=n_clusters, init='k-means++', 
                 n_init=10, max_iter=300, tol=1e-4, 
                 precompute_distances='auto', 
                 verbose=0, random_state=None, 
                 copy_x=True, n_jobs=1, algorithm='auto'),
-        "MeanShift":
-            MeanShift(n_clusters=8, init='k-means++', n_init=10, max_iter=300, 
-                tol=1e-4, precompute_distances='auto', 
-                verbose=0, random_state=None, 
-                opy_x=True, n_jobs=1, algorithm='auto'),
-        "Spectral":
-            SpectralClustering(n_clusters=8, eigen_solver=None, 
-                random_state=None, n_init=10, 
-                gamma=1., affinity='rbf', 
-                n_neighbors=10, eigen_tol=0.0, 
-                assign_labels='kmeans', degree=3, 
-                coef0=1, kernel_params=None, n_jobs=1),
+        # "MeanShift":#NOTE: Slow confirmed
+        #     MeanShift(bandwidth=None, seeds=None, 
+        #         bin_seeding=False, min_bin_freq=1, 
+        #         cluster_all=True, n_jobs=1),
+        # "Spectral":#NOTE: memory error confirmed
+        #     SpectralClustering(n_clusters=n_clusters, eigen_solver=None, 
+        #         random_state=None, n_init=10, 
+        #         gamma=1., affinity='rbf', 
+        #         n_neighbors=10, eigen_tol=0.0, 
+        #         assign_labels='kmeans', degree=3, 
+        #         coef0=1, kernel_params=None, n_jobs=1),
     }
-
+    
     extract_compareClustering(clusterClass)

@@ -45,6 +45,9 @@ def RunPyodOutlier(classifiers,outlier_save_path,isExtract=True):
     n_bands=dataset[3]
     org_data=art.tif2vec(dataset[0])#NOTE: this step is really important
 
+    #NOTE: Normalize the scale of the orignialdata
+    org_data = org_data / org_data.max(axis=0)
+
     #TODO: normalize the data?
     
     if isExtract:
@@ -109,7 +112,7 @@ def RunPyodOutlier(classifiers,outlier_save_path,isExtract=True):
             f.write("\n----------------------------------------------\n")
 
 if __name__ == "__main__":
-    outlier_save_path="C:\\Users\\DELL\\Projects\\MLS_cluster\\image-v2-timeseries\\Pyod_Algorithms\\new_compare_extraction"
+    outlier_save_path="C:\\Users\\DELL\\Projects\\MLS_cluster\\image-v2-timeseries\\Pyod_Algorithms\\AutoEncoder\\Normalized"
 
     outliers_fraction=0.005
     random_state=np.random.RandomState(2018)
@@ -117,34 +120,34 @@ if __name__ == "__main__":
                 'Cluster-based Local Outlier Factor (CBLOF)':
                     CBLOF(contamination=outliers_fraction,
                             check_estimator=False, random_state=random_state),#
-                'Histogram-base Outlier Detection (HBOS)': HBOS(
-                    contamination=outliers_fraction),
-                'Isolation Forest': IForest(contamination=outliers_fraction,
-                                            random_state=random_state),
-                'K Nearest Neighbors (KNN)': KNN(
-                    contamination=outliers_fraction),
-                'Average KNN': KNN(method='mean',
-                                    contamination=outliers_fraction),
-                'Median KNN': KNN(method='median',
-                                    contamination=outliers_fraction),
-                'Local Outlier Factor (LOF)':
-                    LOF(n_neighbors=35, contamination=outliers_fraction),
-                'Minimum Covariance Determinant (MCD)': MCD(
-                    contamination=outliers_fraction, random_state=random_state),
+                # 'Histogram-base Outlier Detection (HBOS)': HBOS(
+                #     contamination=outliers_fraction),
+                # 'Isolation Forest': IForest(contamination=outliers_fraction,
+                #                             random_state=random_state),
+                # 'K Nearest Neighbors (KNN)': KNN(
+                #     contamination=outliers_fraction),
+                # 'Average KNN': KNN(method='mean',
+                #                     contamination=outliers_fraction),
+                # 'Median KNN': KNN(method='median',
+                #                     contamination=outliers_fraction),
+                # 'Local Outlier Factor (LOF)':
+                #     LOF(n_neighbors=35, contamination=outliers_fraction),
+                # 'Minimum Covariance Determinant (MCD) MCD(
+                #     contamination=outliers_fraction, random_state=random_state),
                 # 'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction, #NOTE: slow, never try again
                 #                                 random_state=random_state),
-                'Principal Component Analysis (PCA)': PCA(
-                    contamination=outliers_fraction, random_state=random_state),
+                # 'Principal Component Analysis (PCA)': PCA(
+                #     contamination=outliers_fraction, random_state=random_state),
                 'AutoEncoder':
                   AutoEncoder(epochs=2, hidden_neurons=[4,2,4],contamination=outliers_fraction),
-                'Feature Bagging':
-                    FeatureBagging(LOF(n_neighbors=35),
-                                    contamination=outliers_fraction,
-                                    check_estimator=False,
-                                    random_state=random_state),
-                'Angle-based Outlier Detector (ABOD)':
-                    ABOD(n_neighbors=10,
-                            contamination=outliers_fraction),
+                # 'Feature Bagging':
+                #     FeatureBagging(LOF(n_neighbors=35),
+                #                     contamination=outliers_fraction,
+                #                     check_estimator=False,
+                #                     random_state=random_state),
+                # 'Angle-based Outlier Detector (ABOD)':
+                #     ABOD(n_neighbors=10,
+                #             contamination=outliers_fraction),
             }
     
     RunPyodOutlier(classifiers,outlier_save_path,isExtract=True)
