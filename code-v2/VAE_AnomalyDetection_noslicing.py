@@ -19,11 +19,18 @@ import torch.utils.data as Data
 
 import numpy as np
 
-trainMode=False
-network_name='test_net.pkl'
+# anomaly detection pipeline parameters
+# network_name='no_extract_net.pkl'
+network_name='extract_add_net.pkl'
+isExtract=True # decide if to do extraction
+# 1.traing phase
+trainMode=True
+# 2.prediction phase
+# trainMode=False
+
 # training parameters
 batch_size=10000
-epochs=10
+epochs=5
 log_interval=20
 torch.manual_seed(10)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -65,9 +72,9 @@ class tiffData():
 
 
         # normalization
-        self.nmax=self.npdataset.max(axis=0)
-        self.nmin=self.npdataset.min(axis=0)
-        self.norm_data = (self.npdataset -self.nmin)/(self.nmax-self.nmin)
+        self.nmean=self.npdataset.mean(axis=0)
+        self.nstd=self.npdataset.std(axis=0)
+        self.norm_data = self.npdataset-self.nmean/self.nstd
 
         # TODO:don't know what's for yet, add only to be compatible to TensorDataset
         self.target_data=np.zeros_like(self.norm_data)
@@ -99,18 +106,21 @@ class tiffData():
     
     # TODO:
     def anomaly(self,scores):
-        self.score_result=np.empty_like(self.select.reshape(-1,1))
-        # scale the scores
-        self.score_result[self.ns_changePos]=DataProcess.scaleNormalize(scores,(0,500)).reshape(-1,)
-        self.score_result[self.ns_nonChangePos]=0
+        if isExtract:
+            self.score_result=np.empty_like(self.select.reshape(-1,1))
+            # scale the scores
+            self.score_result[self.ns_changePos]=DataProcess.scaleNormalize(scores,(0,500)).reshape(-1,)
+            self.score_result[self.ns_nonChangePos]=0
+        else:
+            self.score_result=DataProcess.scaleNormalize(scores,(0,500)).reshape(-1,)
         # give labels
-        self.outlier_result=highRank.getOutliers(self.score_result,98)
+        self.outlier_result=highRank.getOutliers(self.score_result,99)
         # generate picture
         GeoProcess.getSHP(img_path=self.root_dir,img_name=self.file_name,
-            save_path="C:\\Users\\DELL\\Projects\\VHR_CD\\repository\\code-v2",extend_name="VAE_",result_array=self.outlier_result)
+            save_path="C:\\Users\\DELL\\Projects\\VHR_CD\\repository\\code-v2",extend_name="VAE_noEXT_",result_array=self.outlier_result)
 
 # import the data
-x=tiffData()
+x=tiffData(isExtract=isExtract)
 my_dataset=Data.TensorDataset( torch.from_numpy(x.getData()).float(),
     torch.from_numpy(x.getTargetData()).float())
 
@@ -125,7 +135,7 @@ class VAE(nn.Module):
     def __init__(self):
         super(VAE, self).__init__()
 
-        self.fc1 = nn.Linear(4, 10) # input data
+        self.fc1 = nn.Linear(4,10) # input data
         # TODO: add one more layer for relu
         self.fc21 = nn.Linear(10, 2) # get mu
         self.fc22 = nn.Linear(10, 2) # get variance
@@ -155,7 +165,7 @@ class VAE(nn.Module):
     def decode(self, z):
         h3 = F.relu(self.fc3(z))
         # TODO: try other activation functions
-        output=torch.sigmoid(self.fc4(h3))
+        output=F.softplus(self.fc4(h3))
         return output
 
     def forward(self, x):
@@ -222,7 +232,10 @@ def evaluation():
         t0=time.clock()
         for idx in range(x.__len__()):
             # # move the data to gpu if possible
-            # TODO: 如果还是不行，就试一下这一句，因为现在是model在CPU上了已经 ->已解决
+            # 如果还是不行，就试一下这一句，因为现在是model在CPU上了
+            # NOTE: 上面的已解决
+            # TODO: 这样一个一个的很慢，有没有办法加快？
+
             # data = data.to(device)
             data=torch.from_numpy(x.__getitem__(idx)).float()
             recon_batch, mu, logvar = model(data)
@@ -231,28 +244,8 @@ def evaluation():
             recon_prob= rcon_prob_BCE(recon_batch, data, mu, logvar)
             np_recon[idx]=recon_prob
             if idx % 100000 ==0:
-                print("done",idx,"predictions, evaluating using time:",time.clock()-t0)
-                
-            # print(type(recon_prob))
-            # print(recon_prob)
-            # if idx==100:
-            #     break
+                print("done",idx,"predictions, evaluating using time:",time.clock()-t0)               
     x.anomaly(np_recon)
-            
-        
-        # for i, (data, _) in enumerate(train_loader):
-        #     # # move the data to gpu if possible
-        #     # data = data.to(device)
-        #     data=data.to(device)
-        #     recon_batch, mu, logvar = model(data)
-        #     # print(recon_batch,x)
-        #     # claculate the loss
-        #     recon_prob= rcon_prob_BCE(recon_batch, data, mu, logvar)
-        #     # print(type(recon_prob))
-        #     # print(recon_prob)
-        #     if i==100:
-        #         break
-
     print("eval time:",time.clock()-t0)
     # NOTE:
     # on GPU: eval time for 100 point 0.454549907970334
@@ -262,6 +255,7 @@ def evaluation():
 if __name__ == '__main__':
     '''
     TODO:如果说，generative model的目的是学习正常的模式，那么是不是应该不做extraction？
+    NOTE: no extraction 的记录
     '''
     # print to test what we load
     # for i in range(300,310):

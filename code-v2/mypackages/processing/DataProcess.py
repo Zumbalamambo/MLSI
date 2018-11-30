@@ -61,7 +61,7 @@ def file_name(file_dir,extendtion):
 # NOTE: transform a numpy array to defined scale
 def scaleNormalize(npdata,r=(0,1)):
     scaler = MinMaxScaler(feature_range=r)
-    X_minmax = scaler.fit_transform(npdata.reshape(-1,1))
+    X_minmax = scaler.fit_transform(npdata)
     return X_minmax
 
 #used to save clustered data

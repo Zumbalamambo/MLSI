@@ -1,0 +1,26 @@
+-----------------------------------------------------
+extract_net:
+no_extract_net:
+
+self.fc1 = nn.Linear(4, 10) # input data
+# TODO: add one more layer for relu
+self.fc21 = nn.Linear(10, 2) # get mu
+self.fc22 = nn.Linear(10, 2) # get variance
+self.fc3 = nn.Linear(2, 10)
+# TODO: add one more layer for relu
+self.fc4 = nn.Linear(10, 4)
+
+output=torch.sigmoid(self.fc4(h4))
+-----------------------------------------------------
+NOTE: 没有变化，激活函数对结果没有影响
+extract_add_net:
+self.fc1 = nn.Linear(4, 10) # input data
+# TODO: add one more layer for relu
+self.fc21 = nn.Linear(10, 2) # get mu
+self.fc22 = nn.Linear(10, 2) # get variance
+self.fc3 = nn.Linear(2, 10)
+self.fc4 = nn.Linear(10,10)
+# TODO: add one more layer for relu
+self.fc5 = nn.Linear(10, 4)
+
+output=F.softplus(self.fc4(h4))
